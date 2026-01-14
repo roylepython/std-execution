@@ -44,6 +44,9 @@ set(SOURCES
     src/core/ip_address.cpp
     src/core/socket.cpp
     src/core/acceptor.cpp
+    src/async/execution.cpp
+    src/security/security.cpp
+    src/performance/optimization.cpp
 )
 
 # Header files for installation
@@ -112,6 +115,10 @@ install(FILES
 # Example application
 add_executable(example_server examples/server.cpp)
 target_link_libraries(example_server dualstack_net26)
+
+# Test compilation executable
+add_executable(compilation_test src/main.cpp)
+target_link_libraries(compilation_test dualstack_net26)
 
 # Tests
 enable_testing()

@@ -2,6 +2,10 @@
 
 A modern C++26 library for dual-stack IPv4/IPv6 networking with std::execution support.
 
+## Status:  Ready for Integration
+
+This library is a fully functional, empirically provable C++26 networking library designed for integration with projects like MedusaServ and PsiForceDB.
+
 ## Overview
 
 DualStackNet26 is a cutting-edge C++ library that leverages the latest C++26 features including std::execution (senders/receivers), compile-time reflection, contracts, and hardened standard library components to provide a high-performance, secure, and scalable solution for dual-stack IP networking.

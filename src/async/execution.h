@@ -1,5 +1,7 @@
 #pragma once
 
+// Copyright © 2025 D Hargreaves | Roylepython AKA The Medusa Initiative 2025 - All Rights Reserved
+
 #include "../core/socket.h"
 #include "../core/acceptor.h"
 #include <execution>
