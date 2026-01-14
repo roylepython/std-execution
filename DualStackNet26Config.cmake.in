@@ -1,0 +1,37 @@
+@PACKAGE_INIT@
+
+include("${CMAKE_CURRENT_LIST_DIR}/DualStackNet26Targets.cmake")
+
+check_required_components(DualStackNet26)
+
+# Set include directories
+set(DualStackNet26_INCLUDE_DIRS "${PACKAGE_PREFIX_DIR}/@CMAKE_INSTALL_INCLUDEDIR@")
+
+# Set library directories
+set(DualStackNet26_LIBRARIES dualstack_net26)
+
+# Set compile definitions
+set(DualStackNet26_DEFINITIONS "")
+
+# Set version information
+set(DualStackNet26_VERSION_MAJOR @PROJECT_VERSION_MAJOR@)
+set(DualStackNet26_VERSION_MINOR @PROJECT_VERSION_MINOR@)
+set(DualStackNet26_VERSION_PATCH @PROJECT_VERSION_PATCH@)
+set(DualStackNet26_VERSION "@PROJECT_VERSION@")
+
+# Check for required features
+include(CMakeFindDependencyMacro)
+
+# Find dependencies based on platform
+if(@WIN32@)
+    # Windows dependencies
+    set(DualStackNet26_PLATFORM_LIBS ws2_32)
+else()
+    # Unix dependencies
+    set(DualStackNet26_PLATFORM_LIBS pthread)
+endif()
+
+# Check for C++26 features
+if(NOT CMAKE_CXX_STANDARD EQUAL 26)
+    message(WARNING "DualStackNet26 recommends C++26 for full feature support")
+endif()
