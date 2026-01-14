@@ -46,6 +46,8 @@ set(SOURCES
     src/core/acceptor.cpp
     src/async/execution.cpp
     src/security/security.cpp
+    src/security/adr_rdr.cpp
+    src/security/signature_visualizer.cpp
     src/performance/optimization.cpp
 )
 
@@ -112,9 +114,12 @@ install(FILES
     DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/DualStackNet26
 )
 
-# Example application
+# Example applications
 add_executable(example_server examples/server.cpp)
 target_link_libraries(example_server dualstack_net26)
+
+add_executable(dualstack_signature_demo examples/dualstack_signature_demo.cpp)
+target_link_libraries(dualstack_signature_demo dualstack_net26)
 
 # Test compilation executable
 add_executable(compilation_test src/main.cpp)

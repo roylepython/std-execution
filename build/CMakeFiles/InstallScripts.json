@@ -1,0 +1,8 @@
+{
+	"InstallScripts" : 
+	[
+		"/mnt/c/McMaker Projects/Tools/libs/std_execution/build/cmake_install.cmake",
+		"/mnt/c/McMaker Projects/Tools/libs/std_execution/build/tests/cmake_install.cmake"
+	],
+	"Parallel" : false
+}

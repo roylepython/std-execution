@@ -1,3 +1,14 @@
+/**
+ * DualStackNet26 - Amphisbaena 🐍
+ * Copyright © 2025 D Hargreaves | Roylepython AKA The Medusa Initiative 2025 - All Rights Reserved
+ * 
+ * Yorkshire Champion Standards - Improving AI Safety and the Web
+ * British Standards improving AI Safety and the Web
+ * 
+ * Weinberg's Second Law: If builders built buildings the way programmers wrote programs, 
+ * then the first woodpecker that came along would destroy civilization.
+ */
+
 #include <iostream>
 #include <string>
 #include <vector>
