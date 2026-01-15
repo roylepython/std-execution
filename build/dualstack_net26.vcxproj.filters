@@ -1,0 +1,49 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="18.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="C:\McMaker Projects\Tools\libs\std_execution\src\core\ip_address.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\McMaker Projects\Tools\libs\std_execution\src\core\socket.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\McMaker Projects\Tools\libs\std_execution\src\core\acceptor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\McMaker Projects\Tools\libs\std_execution\src\async\execution.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\McMaker Projects\Tools\libs\std_execution\src\security\security.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\McMaker Projects\Tools\libs\std_execution\src\security\adr_rdr.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\McMaker Projects\Tools\libs\std_execution\src\security\signature_visualizer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\McMaker Projects\Tools\libs\std_execution\src\performance\optimization.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\McMaker Projects\Tools\libs\std_execution\src\network\async_connection_manager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\McMaker Projects\Tools\libs\std_execution\src\network\notifications.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\McMaker Projects\Tools\libs\std_execution\src\network\network_config.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\McMaker Projects\Tools\libs\std_execution\src\network\virtual_adapter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="C:\McMaker Projects\Tools\libs\std_execution\CMakeLists.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{5CFCFAB8-43B9-359B-AC35-6DF504AA9E3A}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

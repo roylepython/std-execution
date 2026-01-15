@@ -1,9 +1,15 @@
 #pragma once
 
-// Copyright © 2025 D Hargreaves | Roylepython AKA The Medusa Initiative 2025 - All Rights Reserved
+// Copyright  2025 D Hargreaves | Roylepython AKA The Medusa Initiative 2025 - All Rights Reserved
 
 #include <execution>
+// C++26 SIMD - conditional include for future support
+#if __has_include(<simd>) && __cpp_lib_simd >= 202300L
 #include <simd>
+#define DUALSTACK_HAS_SIMD 1
+#else
+#define DUALSTACK_HAS_SIMD 0
+#endif
 #include <atomic>
 #include <memory>
 #include <thread>
@@ -12,11 +18,7 @@
 #include <mutex>
 #include <condition_variable>
 #include <functional>
-
-// C++26 performance features
-#if __cpp_lib_simd >= 202300L
-#include <simd>
-#endif
+#include <future>
 
 #if __cpp_lib_hazard_pointers >= 202300L
 #include <hazard_pointers>
@@ -161,36 +163,8 @@ private:
     std::atomic<bool> stop_;
     
 public:
-    explicit thread_pool(std::size_t num_threads = std::thread::hardware_concurrency()) {
-        stop_ = false;
-        for (std::size_t i = 0; i < num_threads; ++i) {
-            workers_.emplace_back([this] {
-                while (true) {
-                    std::function<void()> task;
-                    
-                    {
-                        std::unique_lock<std::mutex> lock(queue_mutex_);
-                        condition_.wait(lock, [this] { return stop_ || !tasks_.empty(); });
-                        
-                        if (stop_ && tasks_.empty()) return;
-                        
-                        task = std::move(tasks_.front());
-                        tasks_.pop();
-                    }
-                    
-                    task();
-                }
-            });
-        }
-    }
-    
-    ~thread_pool() {
-        stop_ = true;
-        condition_.notify_all();
-        for (auto& worker : workers_) {
-            worker.join();
-        }
-    }
+    explicit thread_pool(std::size_t num_threads = std::thread::hardware_concurrency());
+    ~thread_pool();
     
     template<typename F>
     auto enqueue(F&& f) -> std::future<std::invoke_result_t<F>> {
@@ -219,40 +193,11 @@ private:
     std::size_t capacity_;
     
 public:
-    explicit memory_pool(std::size_t block_size, std::size_t capacity)
-        : block_size_(block_size), capacity_(capacity) {
-        // Pre-allocate memory blocks
-        for (std::size_t i = 0; i < capacity_; ++i) {
-            free_blocks_.push(static_cast<std::byte*>(std::malloc(block_size_)));
-        }
-    }
+    explicit memory_pool(std::size_t block_size, std::size_t capacity);
+    ~memory_pool();
     
-    ~memory_pool() {
-        std::scoped_lock lock(mutex_);
-        while (!free_blocks_.empty()) {
-            std::free(free_blocks_.front());
-            free_blocks_.pop();
-        }
-    }
-    
-    auto allocate() -> std::byte* {
-        std::scoped_lock lock(mutex_);
-        if (free_blocks_.empty()) {
-            return static_cast<std::byte*>(std::malloc(block_size_));
-        }
-        auto* ptr = free_blocks_.front();
-        free_blocks_.pop();
-        return ptr;
-    }
-    
-    auto deallocate(std::byte* ptr) -> void {
-        std::scoped_lock lock(mutex_);
-        if (free_blocks_.size() < capacity_) {
-            free_blocks_.push(ptr);
-        } else {
-            std::free(ptr);
-        }
-    }
+    auto allocate() -> std::byte*;
+    auto deallocate(std::byte* ptr) -> void;
 };
 
 // Performance monitoring utilities

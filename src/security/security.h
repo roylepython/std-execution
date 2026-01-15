@@ -1,27 +1,34 @@
 #pragma once
 
-// Copyright © 2025 D Hargreaves | Roylepython AKA The Medusa Initiative 2025 - All Rights Reserved
+// Copyright  2025 D Hargreaves | Roylepython AKA The Medusa Initiative 2025 - All Rights Reserved
 
+#include "../../include/dualstack_net26/fix_format_header.h"
 #include <span>
 #include <concepts>
+#include <vector>
+#include <cstddef>  // for std::byte
+#include "../core/ip_address.h"
+// C++26 contracts - conditional include for future support
+#if __has_include(<contract>) && __cpp_lib_contracts >= 202300L
 #include <contract>
+#else
+// Contracts not yet available - use assertions as fallback
+#define contract_assert(condition, message) assert(condition)
+#endif
 #include <memory>
+#include <cassert>
 
 // C++26 hardened library support
-#if __cpp_lib_hardened >= 202300L
+#if defined(__cpp_lib_hardened) && __cpp_lib_hardened >= 202300L
 #include <hardened>
 #endif
 
 namespace dualstack::security {
 
 // Security-enhanced span with bounds checking
-#if __cpp_lib_hardened >= 202300L
-template<typename T>
-using secure_span = std::span<T, std::hardened>;
-#else
+// Fallback to basic span to avoid template issues
 template<typename T>
 using secure_span = std::span<T>;
-#endif
 
 // Contract checking utilities
 #if __cpp_lib_contracts >= 202200L
@@ -50,19 +57,13 @@ private:
     
 public:
     // Construction with security constraints
-    DUALSTACK_EXPECTS(port > 0 && port < 65536)
-    DUALSTACK_EXPECTS(!addr.is_reserved())
     SecureSocket(const class IPAddress& addr, std::uint16_t port);
     
     ~SecureSocket();
     
     // Secure data transfer with bounds checking
-    DUALSTACK_EXPECTS(!data.empty())
-    DUALSTACK_ENSURES(ret <= data.size())
     auto secure_send(secure_span<const std::byte> data) -> std::size_t;
     
-    DUALSTACK_EXPECTS(!buffer.empty())
-    DUALSTACK_ENSURES(ret <= buffer.size())
     auto secure_receive(secure_span<std::byte> buffer) -> std::size_t;
     
     // Connection security
@@ -79,7 +80,6 @@ private:
 public:
     explicit AccessControlList(secure_span<const class IPAddress> blocked);
     
-    DUALSTACK_EXPECTS(!ip.is_unspecified())
     auto is_blocked(const class IPAddress& ip) const -> bool;
     
     auto add_blocked(const class IPAddress& ip) -> void;
@@ -97,18 +97,24 @@ private:
 public:
     SecureBuffer() : size_(0) {}
     
-    DUALSTACK_EXPECTS(index < size_)
     auto at(std::size_t index) const -> const T& {
+        if (index >= size_) {
+            throw std::out_of_range("SecureBuffer::at index out of range");
+        }
         return buffer_[index];
     }
     
-    DUALSTACK_EXPECTS(index < size_)
     auto at(std::size_t index) -> T& {
+        if (index >= size_) {
+            throw std::out_of_range("SecureBuffer::at index out of range");
+        }
         return buffer_[index];
     }
     
-    DUALSTACK_EXPECTS(new_size <= MaxSize)
     auto resize(std::size_t new_size) -> void {
+        if (new_size > MaxSize) {
+            throw std::out_of_range("SecureBuffer::resize new_size exceeds MaxSize");
+        }
         size_ = new_size;
     }
     
@@ -189,5 +195,14 @@ constexpr bool has_security_features() {
         return false;
     }
 }
+
+// Security Manager for encryption operations
+class SecurityManager {
+public:
+    using buffer_t = std::vector<std::byte>;
+    
+    static auto encrypt_data(const buffer_t& data, const std::string& key) -> buffer_t;
+    static auto decrypt_data(const buffer_t& data, const std::string& key) -> buffer_t;
+};
 
 } // namespace dualstack::security

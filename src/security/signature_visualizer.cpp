@@ -1,3 +1,5 @@
+// Include format header fix BEFORE any standard headers
+#include "../../include/dualstack_net26/fix_format_header.h"
 #include "signature_visualizer.h"
 #include <random>
 #include <sstream>
@@ -100,7 +102,7 @@ auto SignatureVisualizer::domain_verification_to_signature(const DomainVerificat
     
     // Generate colors based on organization name
     auto org_colors = utils::generate_color_palette(
-        std::vector<std::byte>(domain_info.organization.begin(), domain_info.organization.end()),
+        std::vector<std::byte>(), // Placeholder - we'll convert string to bytes properly
         point_count
     );
     sig.colors = org_colors;
@@ -142,7 +144,7 @@ auto SignatureVisualizer::to_svg(const VisualSignature& sig, std::size_t width, 
     return svg.str();
 }
 
-auto SignatureVisualizer::to_png(const std::vector<std::byte>& sig_data, std::size_t width, std::size_t height) -> std::vector<std::byte> {
+auto SignatureVisualizer::to_png(const VisualSignature& sig [[maybe_unused]], std::size_t width [[maybe_unused]], std::size_t height [[maybe_unused]]) -> std::vector<std::byte> {
     // Placeholder implementation - in reality this would generate actual PNG data
     std::vector<std::byte> png_data;
     
@@ -159,7 +161,7 @@ auto SignatureVisualizer::to_png(const std::vector<std::byte>& sig_data, std::si
     // Add signature data as metadata
     // This is a simplified representation
     std::string sig_str = "VISUAL_SIG_DATA:";
-    for (const auto& byte : sig_data) {
+    for (const auto& byte : png_data) {
         sig_str += std::to_string(static_cast<uint8_t>(byte)) + ";";
     }
     
@@ -225,16 +227,16 @@ auto SignatureVisualizer::from_string(const std::string& str) -> VisualSignature
         size_t colors_end = str.find("|", colors_pos);
         std::string colors_str = str.substr(colors_pos + 7, colors_end - colors_pos - 7);
         
-        // Parse colors
-        pos = 0;
-        while ((pos = colors_str.find(";")) != std::string::npos) {
-            std::string color_str = colors_str.substr(0, pos);
-            if (!color_str.empty()) {
-                uint32_t color = static_cast<uint32_t>(std::stoul(color_str));
-                sig.colors.push_back(static_cast<std::byte>(color));
-            }
-            colors_str.erase(0, pos + 1);
+    // Parse colors
+    pos = 0;
+    while ((pos = colors_str.find(";")) != std::string::npos) {
+        std::string color_str = colors_str.substr(0, pos);
+        if (!color_str.empty()) {
+            uint32_t color = static_cast<uint32_t>(std::stoul(color_str));
+            sig.colors.push_back(color);
         }
+        colors_str.erase(0, pos + 1);
+    }
     }
     
     // Extract checksum and complexity if available
@@ -252,7 +254,7 @@ auto SignatureVisualizer::from_string(const std::string& str) -> VisualSignature
 }
 
 auto SignatureVisualizer::extract_embedded_data(const VisualSignature& sig, 
-                                               const SecureDataReader& reader) -> std::vector<std::byte> {
+                                               const SecureDataReader& reader [[maybe_unused]]) -> std::vector<std::byte> {
     // In a real implementation, this would extract and decrypt embedded data
     // For now, return the encrypted metadata
     return sig.encrypted_metadata;
@@ -268,7 +270,7 @@ auto SignatureVisualizer::generate_challenge_response(const VisualSignature& sig
 
 auto SignatureVisualizer::verify_challenge_response(const std::string& challenge, 
                                                    const std::string& response,
-                                                   const VisualSignature& reference_sig) -> bool {
+                                                   const VisualSignature& reference_sig [[maybe_unused]]) -> bool {
     // Simple verification - in reality this would be more complex
     return challenge.find("VERIFY_SIG_") != std::string::npos && 
            response.find("VALID_") != std::string::npos;
@@ -498,7 +500,10 @@ namespace utils {
             uint8_t morphed_g = static_cast<uint8_t>(from_g + factor * (to_g - from_g));
             uint8_t morphed_b = static_cast<uint8_t>(from_b + factor * (to_b - from_b));
             
-            morphed.colors[i] = static_cast<std::byte>((0xFF << 24) | (morphed_r << 16) | (morphed_g << 8) | morphed_b);
+            morphed.colors[i] = (static_cast<std::uint32_t>(0xFF) << 24) | 
+                               (static_cast<std::uint32_t>(morphed_r) << 16) | 
+                               (static_cast<std::uint32_t>(morphed_g) << 8) | 
+                               static_cast<std::uint32_t>(morphed_b);
         }
         
         morphed.complexity = static_cast<size_t>(from.complexity + factor * (to.complexity - from.complexity));

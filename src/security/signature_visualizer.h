@@ -20,6 +20,18 @@
 #include <map>
 #include <cmath>
 #include <bitset>
+#include <cstddef>
+
+// Define std::byte if not available
+#if __cplusplus >= 201703L
+    // C++17 std::byte is available
+    #include <cstddef>
+#else
+    // Fallback for older standards
+    namespace std {
+        enum class byte : unsigned char {};
+    }
+#endif
 
 // Forward declarations for PQC integration
 namespace dualstack::security::tls::pqc {

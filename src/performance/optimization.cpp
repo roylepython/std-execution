@@ -1,6 +1,6 @@
 /**
  * DualStackNet26 - Amphisbaena =
- * Copyright © 2025 D Hargreaves | Roylepython AKA The Medusa Initiative 2025 - All Rights Reserved
+ * Copyright ï¿½ 2025 D Hargreaves | Roylepython AKA The Medusa Initiative 2025 - All Rights Reserved
  * 
  * Yorkshire Champion Standards - Improving AI Safety and the Web
  * British Standards improving AI Safety and the Web
@@ -9,6 +9,8 @@
  * then the first woodpecker that came along would destroy civilization.
  */
 
+// Include format header fix BEFORE any standard headers
+#include "../../include/dualstack_net26/fix_format_header.h"
 #include "optimization.h"
 #include <numeric>
 #include <algorithm>
@@ -115,22 +117,7 @@ thread_pool::~thread_pool() {
     }
 }
 
-template<typename F>
-auto thread_pool::enqueue(F&& f) -> std::future<std::invoke_result_t<F>> {
-    using return_type = std::invoke_result_t<F>;
-    
-    auto task = std::make_shared<std::packaged_task<return_type()>>(std::forward<F>(f));
-    std::future<return_type> result = task->get_future();
-    
-    {
-        std::scoped_lock lock(queue_mutex_);
-        if (stop_) throw std::runtime_error("enqueue on stopped threadpool");
-        tasks_.emplace([task]() { (*task)(); });
-    }
-    
-    condition_.notify_one();
-    return result;
-}
+// enqueue is now defined inline in the header
 
 // Memory pool implementation
 memory_pool::memory_pool(std::size_t block_size, std::size_t capacity)
@@ -161,31 +148,9 @@ auto memory_pool::allocate() -> std::byte* {
 
 auto memory_pool::deallocate(std::byte* ptr) -> void {
     std::scoped_lock lock(mutex_);
-    if (free_blocks_.size() < capacity_) {
-        free_blocks_.push(ptr);
-    } else {
-        std::free(ptr);
-    }
+    free_blocks_.push(ptr);
 }
 
-// Performance monitor implementation
-perf_monitor::perf_monitor() : operation_count_(0) {
-    start_time_ = std::chrono::high_resolution_clock::now();
-}
 
-auto perf_monitor::start_operation() -> void {
-    ++operation_count_;
-}
-
-auto perf_monitor::get_elapsed_time() const -> std::chrono::milliseconds {
-    auto now = std::chrono::high_resolution_clock::now();
-    return std::chrono::duration_cast<std::chrono::milliseconds>(now - start_time_);
-}
-
-auto perf_monitor::get_operations_per_second() const -> double {
-    auto elapsed_ms = get_elapsed_time().count();
-    if (elapsed_ms == 0) return 0.0;
-    return (static_cast<double>(operation_count_.load()) / elapsed_ms) * 1000.0;
-}
 
 } // namespace dualstack::performance

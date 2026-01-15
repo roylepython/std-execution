@@ -1,2 +1,0 @@
-/usr/bin/ar qc libdualstack_net26.a CMakeFiles/dualstack_net26.dir/src/core/ip_address.cpp.o CMakeFiles/dualstack_net26.dir/src/core/socket.cpp.o CMakeFiles/dualstack_net26.dir/src/core/acceptor.cpp.o CMakeFiles/dualstack_net26.dir/src/async/execution.cpp.o CMakeFiles/dualstack_net26.dir/src/security/security.cpp.o CMakeFiles/dualstack_net26.dir/src/security/adr_rdr.cpp.o CMakeFiles/dualstack_net26.dir/src/security/signature_visualizer.cpp.o CMakeFiles/dualstack_net26.dir/src/performance/optimization.cpp.o
-/usr/bin/ranlib libdualstack_net26.a

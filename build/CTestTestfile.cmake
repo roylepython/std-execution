@@ -1,6 +1,6 @@
 # CMake generated Testfile for 
-# Source directory: /mnt/c/McMaker Projects/Tools/libs/std_execution
-# Build directory: /mnt/c/McMaker Projects/Tools/libs/std_execution/build
+# Source directory: C:/McMaker Projects/Tools/libs/std_execution
+# Build directory: C:/McMaker Projects/Tools/libs/std_execution/build
 # 
 # This file includes the relevant testing commands required for 
 # testing this directory and lists subdirectories to be tested as well.

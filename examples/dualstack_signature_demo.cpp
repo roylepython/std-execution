@@ -5,7 +5,7 @@
  * Example demonstrating dual-stack server with ADS-SIG/ADS-RDR integration
  */
 
-#include "core/ip_address.h"
+#include "../src/core/ip_address.h"
 #include "core/socket.h"
 #include "core/acceptor.h"
 #include "async/execution.h"

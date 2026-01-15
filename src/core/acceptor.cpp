@@ -1,6 +1,6 @@
 /**
  * DualStackNet26 - Amphisbaena =
- * Copyright © 2025 D Hargreaves | Roylepython AKA The Medusa Initiative 2025 - All Rights Reserved
+ * Copyright  2025 D Hargreaves | Roylepython AKA The Medusa Initiative 2025 - All Rights Reserved
  * 
  * Yorkshire Champion Standards - Improving AI Safety and the Web
  * British Standards improving AI Safety and the Web
@@ -9,7 +9,13 @@
  * then the first woodpecker that came along would destroy civilization.
  */
 
+// Include format header fix BEFORE any standard headers
+#include "../../include/dualstack_net26/fix_format_header.h"
 #include "acceptor.h"
+#include "socket.h"
+#include "ip_address.h"
+
+using ::make_unexpected_value;
 #include <cstring>
 #include <stdexcept>
 
@@ -17,6 +23,7 @@
 #include <winsock2.h>
 #include <ws2tcpip.h>
 #else
+#include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
@@ -132,18 +139,25 @@ auto Acceptor::accept() -> std::expected<Socket, error_code> {
                                      reinterpret_cast<sockaddr*>(&addr_storage), &addr_len);
     
     if (new_socket_handle == static_cast<native_socket_handle>(-1)) {
+#ifdef _WIN32
+        if (WSAGetLastError() == WSAEWOULDBLOCK) {
+            return std::unexpected<error_code>(error_code::timeout);
+        }
+#else
+        if (errno == EAGAIN || errno == EWOULDBLOCK) {
+            return std::unexpected<error_code>(error_code::timeout);
+        }
+#endif
         return std::unexpected<error_code>(error_code::accept_failed);
     }
     
-    // Create new socket object
-    Socket new_socket;
-    // Note: This is a simplified implementation - in practice, you'd need to 
-    // properly initialize the socket with the accepted handle
+    // Create new socket object from accepted handle
+    Socket new_socket(static_cast<native_socket_handle>(new_socket_handle), true);
     
     return new_socket;
 }
 
-auto Acceptor::bind_to_interface(const IPAddress& addr) -> error_code {
+auto Acceptor::bind_to_interface(const IPAddress& addr [[maybe_unused]]) -> error_code {
     // This would be implemented to bind to specific interfaces
     return error_code::success;
 }
@@ -153,7 +167,7 @@ auto Acceptor::bind_to_all_interfaces() -> error_code {
     return error_code::success;
 }
 
-auto Acceptor::set_backlog(int backlog) -> error_code {
+auto Acceptor::set_backlog(int backlog [[maybe_unused]]) -> error_code {
     if (!is_listening_) {
         return error_code::invalid_address;
     }

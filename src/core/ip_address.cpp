@@ -1,6 +1,6 @@
 /**
  * DualStackNet26 - Amphisbaena =
- * Copyright © 2025 D Hargreaves | Roylepython AKA The Medusa Initiative 2025 - All Rights Reserved
+ * Copyright ï¿½ 2025 D Hargreaves | Roylepython AKA The Medusa Initiative 2025 - All Rights Reserved
  * 
  * Yorkshire Champion Standards - Improving AI Safety and the Web
  * British Standards improving AI Safety and the Web
@@ -9,16 +9,22 @@
  * then the first woodpecker that came along would destroy civilization.
  */
 
+// Include format header fix BEFORE any standard headers
+#include "../../include/dualstack_net26/fix_format_header.h"
 #include "ip_address.h"
 #include <sstream>
 #include <iomanip>
 #include <algorithm>
 #include <charconv>
+#include <variant>
+#include <functional>
+#include <string_view>
+#include <array>
 
 namespace dualstack {
 
 // IPv4 address implementation
-ipv4_address::ipv4_address(std::uint32_t addr) : address(addr) {}
+// Constructor is defined inline in header, no need to redefine here
 
 auto ipv4_address::to_string() const -> std::string {
     std::ostringstream oss;
@@ -29,14 +35,14 @@ auto ipv4_address::to_string() const -> std::string {
     return oss.str();
 }
 
-auto ipv4_address::from_string(std::string_view str) -> std::expected<ipv4_address, int> {
+auto ipv4_address::from_string(std::string_view str) -> dualstack_expected::expected<ipv4_address, int> {
     std::uint32_t addr = 0;
-    int octet = 0;
+    [[maybe_unused]] int octet = 0;
     int shift = 24;
     
     auto pos = str.find_first_not_of("0123456789.");
     if (pos != std::string_view::npos) {
-        return std::unexpected<int>(-1); // Invalid character
+        return dualstack_expected::unexpected<int>(-1); // Invalid character
     }
     
     pos = 0;
@@ -48,13 +54,13 @@ auto ipv4_address::from_string(std::string_view str) -> std::expected<ipv4_addre
         
         std::string octet_str(str.substr(pos, dot_pos - pos));
         if (octet_str.empty() || octet_str.length() > 3) {
-            return std::unexpected<int>(-2); // Invalid octet
+            return dualstack_expected::unexpected<int>(-2); // Invalid octet
         }
         
         int value = 0;
         auto result = std::from_chars(octet_str.data(), octet_str.data() + octet_str.length(), value);
         if (result.ec != std::errc{} || value < 0 || value > 255) {
-            return std::unexpected<int>(-3); // Invalid octet value
+            return dualstack_expected::unexpected<int>(-3); // Invalid octet value
         }
         
         addr |= (static_cast<std::uint32_t>(value) << shift);
@@ -62,19 +68,19 @@ auto ipv4_address::from_string(std::string_view str) -> std::expected<ipv4_addre
         pos = dot_pos + 1;
         
         if (pos > str.length() && shift >= 0) {
-            return std::unexpected<int>(-4); // Missing octets
+            return dualstack_expected::unexpected<int>(-4); // Missing octets
         }
     }
     
     if (shift != -8) {
-        return std::unexpected<int>(-5); // Wrong number of octets
+        return dualstack_expected::unexpected<int>(-5); // Wrong number of octets
     }
     
     return ipv4_address(addr);
 }
 
 // IPv6 address implementation
-ipv6_address::ipv6_address(std::uint64_t h, std::uint64_t l) : high(h), low(l) {}
+// Constructor is defined inline in header, no need to redefine here
 
 auto ipv6_address::to_string() const -> std::string {
     std::ostringstream oss;
@@ -141,9 +147,9 @@ auto ipv6_address::to_string() const -> std::string {
     return oss.str();
 }
 
-auto ipv6_address::from_string(std::string_view str) -> std::expected<ipv6_address, int> {
+auto ipv6_address::from_string(std::string_view str) -> dualstack_expected::expected<ipv6_address, int> {
     if (str.empty()) {
-        return std::unexpected<int>(-1);
+        return dualstack_expected::unexpected<int>(-1);
     }
     
     // Handle special cases
@@ -193,15 +199,15 @@ auto ipv6_address::from_string(std::string_view str) -> std::expected<ipv6_addre
         
         std::string word_str(str.substr(parse_pos, colon_pos - parse_pos));
         if (word_str.empty()) {
-            return std::unexpected<int>(-2);
+            return dualstack_expected::unexpected<int>(-2);
         }
         
-        // Parse hex word
-        std::uint16_t word = 0;
-        auto result = std::from_chars(word_str.data(), word_str.data() + word_str.length(), word, 16);
-        if (result.ec != std::errc{}) {
-            return std::unexpected<int>(-3);
-        }
+    // Parse hex word
+    std::uint16_t word = 0;
+    auto result = std::from_chars(word_str.data(), word_str.data() + word_str.length(), word, 16);
+    if (result.ec != std::errc{}) {
+        return dualstack_expected::unexpected(-3);
+    }
         
         words[word_index++] = word;
         parse_pos = colon_pos + 1;
@@ -228,14 +234,14 @@ IPAddress::IPAddress(ipv4_address ipv4) : addr_(std::move(ipv4)) {}
 
 IPAddress::IPAddress(ipv6_address ipv6) : addr_(std::move(ipv6)) {}
 
-auto IPAddress::from_string(std::string_view str) -> std::expected<IPAddress, int> {
+auto IPAddress::from_string(std::string_view str) -> dualstack_expected::expected<IPAddress, int> {
     // Try IPv6 first (contains ':')
     if (str.find(':') != std::string_view::npos) {
         auto result = ipv6_address::from_string(str);
         if (result.has_value()) {
             return IPAddress(result.value());
         }
-        return std::unexpected<int>(result.error());
+        return dualstack_expected::unexpected<int>(result.error());
     }
     
     // Try IPv4
@@ -243,7 +249,7 @@ auto IPAddress::from_string(std::string_view str) -> std::expected<IPAddress, in
     if (result.has_value()) {
         return IPAddress(result.value());
     }
-    return std::unexpected<int>(result.error());
+    return dualstack_expected::unexpected<int>(result.error());
 }
 
 auto IPAddress::to_string() const -> std::string {
@@ -267,7 +273,16 @@ bool IPAddress::operator!=(const IPAddress& other) const {
 }
 
 auto IPAddress::Hash::operator()(const IPAddress& ip) const -> std::size_t {
-    return std::hash<std::variant<ipv4_address, ipv6_address>>{}(ip.addr_);
+    // Custom hash implementation since std::variant doesn't have default hash
+    if (ip.is_ipv4()) {
+        const auto& ipv4 = ip.get_ipv4();
+        return std::hash<std::uint32_t>{}(ipv4.address);
+    } else {
+        const auto& ipv6 = ip.get_ipv6();
+        std::size_t h1 = std::hash<std::uint64_t>{}(ipv6.high);
+        std::size_t h2 = std::hash<std::uint64_t>{}(ipv6.low);
+        return h1 ^ (h2 << 1);
+    }
 }
 
 } // namespace dualstack

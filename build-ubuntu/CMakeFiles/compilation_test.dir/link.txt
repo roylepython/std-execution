@@ -1,0 +1,1 @@
+/usr/bin/g++-14  -std=c++2c -Wall -Wextra -Wpedantic -O3 -DNDEBUG -O3 -DNDEBUG -Wl,--dependency-file=CMakeFiles/compilation_test.dir/link.d CMakeFiles/compilation_test.dir/src/main.cpp.o -o compilation_test  -Wl,-rpath,"/mnt/c/McMaker Projects/Tools/libs/std_execution/build-ubuntu" libdualstack_net26.so.1.0.0

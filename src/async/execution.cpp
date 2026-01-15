@@ -1,6 +1,6 @@
 /**
  * DualStackNet26 - Amphisbaena =
- * Copyright © 2025 D Hargreaves | Roylepython AKA The Medusa Initiative 2025 - All Rights Reserved
+ * Copyright ï¿½ 2025 D Hargreaves | Roylepython AKA The Medusa Initiative 2025 - All Rights Reserved
  * 
  * Yorkshire Champion Standards - Improving AI Safety and the Web
  * British Standards improving AI Safety and the Web
@@ -9,6 +9,8 @@
  * then the first woodpecker that came along would destroy civilization.
  */
 
+// Include format header fix BEFORE any standard headers
+#include "../../include/dualstack_net26/fix_format_header.h"
 #include "execution.h"
 #include <stdexcept>
 #include <iostream>
@@ -170,5 +172,12 @@ auto get_network_context(const Env& env) -> io_context* {
     // In a real implementation, this would extract the io_context from the environment
     return nullptr;
 }
+
+#if __cpp_lib_execution >= 202300L
+// Implementation of get_scheduler
+auto io_context::get_scheduler() {
+    return std::execution::get_inline_scheduler();
+}
+#endif
 
 } // namespace dualstack::async

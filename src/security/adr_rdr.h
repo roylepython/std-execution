@@ -12,12 +12,26 @@
  */
 
 #include "signature_visualizer.h"
+
+using dualstack::security::visualization::SignatureVisualizer;
 #include <string>
 #include <vector>
 #include <memory>
 #include <map>
 #include <cstdint>
 #include <cstddef>
+#include <optional>
+
+// Define std::byte if not available
+#if __cplusplus >= 201703L
+    // C++17 std::byte is available
+    #include <cstddef>
+#else
+    // Fallback for older standards
+    namespace std {
+        enum class byte : unsigned char {};
+    }
+#endif
 
 namespace dualstack::security::visualization {
 
@@ -27,26 +41,34 @@ namespace dualstack::security::visualization {
 class ADRReader {
 private:
     std::unique_ptr<SignatureVisualizer> visualizer_;
-    SignatureVisualizer::SecureDataReader secure_reader_;
+    std::optional<SignatureVisualizer::SecureDataReader> secure_reader_;
     
 public:
     // Reader configuration
     struct ReaderConfig {
-        bool verify_integrity = true;
-        bool decrypt_embedded_data = true;
-        bool extract_biometrics = true;
-        bool extract_domain_info = true;
-        float authentication_tolerance = 0.1f;
+        bool verify_integrity;
+        bool decrypt_embedded_data;
+        bool extract_biometrics;
+        bool extract_domain_info;
+        float authentication_tolerance;
+        
+        // Constructor to initialize members
+        ReaderConfig() : 
+            verify_integrity(true),
+            decrypt_embedded_data(true),
+            extract_biometrics(true),
+            extract_domain_info(true),
+            authentication_tolerance(0.1f) {}
     };
     
     // Read results
     struct ReadResult {
         bool success;
         std::string error_message;
-        VisualSignature signature;
+        SignatureVisualizer::VisualSignature signature;
         std::vector<std::byte> decrypted_data;
-        BiometricData biometric_info;
-        DomainVerification domain_info;
+        SignatureVisualizer::BiometricData biometric_info;
+        SignatureVisualizer::DomainVerification domain_info;
         std::map<std::string, float> security_metrics;
         bool is_authenticated;
     };
@@ -55,9 +77,11 @@ public:
                       const std::vector<std::byte>& aes_key,
                       ReaderConfig config = ReaderConfig{})
         : visualizer_(std::make_unique<SignatureVisualizer>()),
-          secure_reader_(kyber_private_key, aes_key) {
+          secure_reader_(std::make_optional<SignatureVisualizer::SecureDataReader>(kyber_private_key, aes_key)) {
         visualizer_->set_kyber_keys({}, kyber_private_key); // Private key for reader
         visualizer_->set_aes_key(aes_key);
+        // Suppress unused parameter warning
+        (void)config;
     }
     
     // Read visual signature from file (SVG, PNG, etc.)
@@ -70,33 +94,33 @@ public:
     auto read_signature_image(const std::vector<std::byte>& image_data) -> ReadResult;
     
     // Authenticate signature against reference
-    auto authenticate_signature(const VisualSignature& sig,
-                               const VisualSignature& reference) -> bool;
+    auto authenticate_signature(const SignatureVisualizer::VisualSignature& sig,
+                               const SignatureVisualizer::VisualSignature& reference) -> bool;
     
     // Extract and decrypt all embedded information
-    auto extract_information(const VisualSignature& sig) -> ReadResult;
+    auto extract_information(const SignatureVisualizer::VisualSignature& sig) -> ReadResult;
     
     // Verify signature integrity
-    auto verify_signature_integrity(const VisualSignature& sig) -> bool;
+    auto verify_signature_integrity(const SignatureVisualizer::VisualSignature& sig) -> bool;
     
     // Get security metrics for the signature
-    auto get_security_analysis(const VisualSignature& sig) -> std::map<std::string, float>;
+    auto get_security_analysis(const SignatureVisualizer::VisualSignature& sig) -> std::map<std::string, float>;
     
     // Export signature data in various formats
-    auto export_signature_data(const VisualSignature& sig, const std::string& format) -> std::vector<std::byte>;
+    auto export_signature_data(const SignatureVisualizer::VisualSignature& sig, const std::string& format) -> std::vector<std::byte>;
     
     // Validate signature format and structure
-    auto validate_signature_format(const VisualSignature& sig) -> bool;
+    auto validate_signature_format(const SignatureVisualizer::VisualSignature& sig) -> bool;
     
     // Compare two signatures
-    auto compare_signatures(const VisualSignature& sig1, const VisualSignature& sig2) -> float;
+    auto compare_signatures(const SignatureVisualizer::VisualSignature& sig1, const SignatureVisualizer::VisualSignature& sig2) -> float;
     
 private:
     // Internal helper methods
-    auto parse_svg_file(const std::string& filepath) -> VisualSignature;
-    auto parse_png_data(const std::vector<std::byte>& data) -> VisualSignature;
-    auto extract_visual_data_from_image(const std::vector<std::byte>& image_data) -> VisualSignature;
-    auto calculate_similarity(const VisualSignature& sig1, const VisualSignature& sig2) -> float;
+    auto parse_svg_file(const std::string& filepath) -> SignatureVisualizer::VisualSignature;
+    auto parse_png_data(const std::vector<std::byte>& data) -> SignatureVisualizer::VisualSignature;
+    auto extract_visual_data_from_image(const std::vector<std::byte>& image_data) -> SignatureVisualizer::VisualSignature;
+    auto calculate_similarity(const SignatureVisualizer::VisualSignature& sig1, const SignatureVisualizer::VisualSignature& sig2) -> float;
 };
 
 // Command-line interface for ADR-RDR
@@ -113,7 +137,7 @@ class ADRGUIInterface {
 public:
     // GUI methods would be implemented here
     static auto launch_gui() -> void;
-    static auto display_signature_visualization(const VisualSignature& sig) -> void;
+    static auto display_signature_visualization(const SignatureVisualizer::VisualSignature& sig) -> void;
 };
 
 } // namespace dualstack::security::visualization

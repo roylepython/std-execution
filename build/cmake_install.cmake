@@ -1,8 +1,8 @@
-# Install script for directory: /mnt/c/McMaker Projects/Tools/libs/std_execution
+# Install script for directory: C:/McMaker Projects/Tools/libs/std_execution
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
-  set(CMAKE_INSTALL_PREFIX "/usr/local")
+  set(CMAKE_INSTALL_PREFIX "C:/Program Files (x86)/DualStackNet26")
 endif()
 string(REGEX REPLACE "/$" "" CMAKE_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}")
 
@@ -27,34 +27,64 @@ if(NOT CMAKE_INSTALL_COMPONENT)
   endif()
 endif()
 
-# Install shared libraries without execute permission?
-if(NOT DEFINED CMAKE_INSTALL_SO_NO_EXE)
-  set(CMAKE_INSTALL_SO_NO_EXE "1")
-endif()
-
 # Is this installation the result of a crosscompile?
 if(NOT DEFINED CMAKE_CROSSCOMPILING)
   set(CMAKE_CROSSCOMPILING "FALSE")
 endif()
 
-# Set path to fallback-tool for dependency-resolution.
-if(NOT DEFINED CMAKE_OBJDUMP)
-  set(CMAKE_OBJDUMP "/usr/bin/objdump")
+if(CMAKE_INSTALL_COMPONENT STREQUAL "Unspecified" OR NOT CMAKE_INSTALL_COMPONENT)
+  if(CMAKE_INSTALL_CONFIG_NAME MATCHES "^([Dd][Ee][Bb][Uu][Gg])$")
+    file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib" TYPE STATIC_LIBRARY OPTIONAL FILES "C:/McMaker Projects/Tools/libs/std_execution/build/Debug/dualstack_net26.lib")
+  elseif(CMAKE_INSTALL_CONFIG_NAME MATCHES "^([Rr][Ee][Ll][Ee][Aa][Ss][Ee])$")
+    file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib" TYPE STATIC_LIBRARY OPTIONAL FILES "C:/McMaker Projects/Tools/libs/std_execution/build/Release/dualstack_net26.lib")
+  elseif(CMAKE_INSTALL_CONFIG_NAME MATCHES "^([Mm][Ii][Nn][Ss][Ii][Zz][Ee][Rr][Ee][Ll])$")
+    file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib" TYPE STATIC_LIBRARY OPTIONAL FILES "C:/McMaker Projects/Tools/libs/std_execution/build/MinSizeRel/dualstack_net26.lib")
+  elseif(CMAKE_INSTALL_CONFIG_NAME MATCHES "^([Rr][Ee][Ll][Ww][Ii][Tt][Hh][Dd][Ee][Bb][Ii][Nn][Ff][Oo])$")
+    file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib" TYPE STATIC_LIBRARY OPTIONAL FILES "C:/McMaker Projects/Tools/libs/std_execution/build/RelWithDebInfo/dualstack_net26.lib")
+  endif()
 endif()
 
 if(CMAKE_INSTALL_COMPONENT STREQUAL "Unspecified" OR NOT CMAKE_INSTALL_COMPONENT)
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib" TYPE STATIC_LIBRARY FILES "/mnt/c/McMaker Projects/Tools/libs/std_execution/build/libdualstack_net26.a")
+  if(CMAKE_INSTALL_CONFIG_NAME MATCHES "^([Dd][Ee][Bb][Uu][Gg])$")
+    file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/bin" TYPE SHARED_LIBRARY FILES "C:/McMaker Projects/Tools/libs/std_execution/build/Debug/dualstack_net26.dll")
+  elseif(CMAKE_INSTALL_CONFIG_NAME MATCHES "^([Rr][Ee][Ll][Ee][Aa][Ss][Ee])$")
+    file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/bin" TYPE SHARED_LIBRARY FILES "C:/McMaker Projects/Tools/libs/std_execution/build/Release/dualstack_net26.dll")
+  elseif(CMAKE_INSTALL_CONFIG_NAME MATCHES "^([Mm][Ii][Nn][Ss][Ii][Zz][Ee][Rr][Ee][Ll])$")
+    file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/bin" TYPE SHARED_LIBRARY FILES "C:/McMaker Projects/Tools/libs/std_execution/build/MinSizeRel/dualstack_net26.dll")
+  elseif(CMAKE_INSTALL_CONFIG_NAME MATCHES "^([Rr][Ee][Ll][Ww][Ii][Tt][Hh][Dd][Ee][Bb][Ii][Nn][Ff][Oo])$")
+    file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/bin" TYPE SHARED_LIBRARY FILES "C:/McMaker Projects/Tools/libs/std_execution/build/RelWithDebInfo/dualstack_net26.dll")
+  endif()
 endif()
 
 if(CMAKE_INSTALL_COMPONENT STREQUAL "Unspecified" OR NOT CMAKE_INSTALL_COMPONENT)
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/include/dualstack_net26" TYPE DIRECTORY FILES "/mnt/c/McMaker Projects/Tools/libs/std_execution/src/" FILES_MATCHING REGEX "/[^/]*\\.h$")
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/include/dualstack_net26" TYPE FILE FILES
+    "C:/McMaker Projects/Tools/libs/std_execution/src/core/ip_address.h"
+    "C:/McMaker Projects/Tools/libs/std_execution/src/core/socket.h"
+    "C:/McMaker Projects/Tools/libs/std_execution/src/core/acceptor.h"
+    "C:/McMaker Projects/Tools/libs/std_execution/src/async/execution.h"
+    "C:/McMaker Projects/Tools/libs/std_execution/src/reflect/reflection.h"
+    "C:/McMaker Projects/Tools/libs/std_execution/src/security/security.h"
+    "C:/McMaker Projects/Tools/libs/std_execution/src/performance/optimization.h"
+    "C:/McMaker Projects/Tools/libs/std_execution/src/network/async_connection_manager.h"
+    "C:/McMaker Projects/Tools/libs/std_execution/include/dualstack_net26/network/notifications.h"
+    "C:/McMaker Projects/Tools/libs/std_execution/include/dualstack_net26/network/virtual_adapter.h"
+    "C:/McMaker Projects/Tools/libs/std_execution/include/dualstack_net26/network/network_config.h"
+    )
+endif()
+
+if(CMAKE_INSTALL_COMPONENT STREQUAL "Unspecified" OR NOT CMAKE_INSTALL_COMPONENT)
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/include" TYPE DIRECTORY FILES "C:/McMaker Projects/Tools/libs/std_execution/include/" FILES_MATCHING REGEX "/[^/]*\\.h$")
+endif()
+
+if(CMAKE_INSTALL_COMPONENT STREQUAL "Unspecified" OR NOT CMAKE_INSTALL_COMPONENT)
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/include/dualstack_net26" TYPE DIRECTORY FILES "C:/McMaker Projects/Tools/libs/std_execution/src/" FILES_MATCHING REGEX "/[^/]*\\.h$" REGEX "/[^/]*\\.cpp$" EXCLUDE)
 endif()
 
 if(CMAKE_INSTALL_COMPONENT STREQUAL "Unspecified" OR NOT CMAKE_INSTALL_COMPONENT)
   if(EXISTS "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/cmake/DualStackNet26/DualStackNet26Targets.cmake")
     file(DIFFERENT _cmake_export_file_changed FILES
          "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/cmake/DualStackNet26/DualStackNet26Targets.cmake"
-         "/mnt/c/McMaker Projects/Tools/libs/std_execution/build/CMakeFiles/Export/ab4dabbb87eba60f13e38a6fc179d5b7/DualStackNet26Targets.cmake")
+         "C:/McMaker Projects/Tools/libs/std_execution/build/CMakeFiles/Export/ab4dabbb87eba60f13e38a6fc179d5b7/DualStackNet26Targets.cmake")
     if(_cmake_export_file_changed)
       file(GLOB _cmake_old_config_files "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/cmake/DualStackNet26/DualStackNet26Targets-*.cmake")
       if(_cmake_old_config_files)
@@ -67,25 +97,34 @@ if(CMAKE_INSTALL_COMPONENT STREQUAL "Unspecified" OR NOT CMAKE_INSTALL_COMPONENT
     endif()
     unset(_cmake_export_file_changed)
   endif()
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/cmake/DualStackNet26" TYPE FILE FILES "/mnt/c/McMaker Projects/Tools/libs/std_execution/build/CMakeFiles/Export/ab4dabbb87eba60f13e38a6fc179d5b7/DualStackNet26Targets.cmake")
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/cmake/DualStackNet26" TYPE FILE FILES "C:/McMaker Projects/Tools/libs/std_execution/build/CMakeFiles/Export/ab4dabbb87eba60f13e38a6fc179d5b7/DualStackNet26Targets.cmake")
+  if(CMAKE_INSTALL_CONFIG_NAME MATCHES "^([Dd][Ee][Bb][Uu][Gg])$")
+    file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/cmake/DualStackNet26" TYPE FILE FILES "C:/McMaker Projects/Tools/libs/std_execution/build/CMakeFiles/Export/ab4dabbb87eba60f13e38a6fc179d5b7/DualStackNet26Targets-debug.cmake")
+  endif()
+  if(CMAKE_INSTALL_CONFIG_NAME MATCHES "^([Mm][Ii][Nn][Ss][Ii][Zz][Ee][Rr][Ee][Ll])$")
+    file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/cmake/DualStackNet26" TYPE FILE FILES "C:/McMaker Projects/Tools/libs/std_execution/build/CMakeFiles/Export/ab4dabbb87eba60f13e38a6fc179d5b7/DualStackNet26Targets-minsizerel.cmake")
+  endif()
+  if(CMAKE_INSTALL_CONFIG_NAME MATCHES "^([Rr][Ee][Ll][Ww][Ii][Tt][Hh][Dd][Ee][Bb][Ii][Nn][Ff][Oo])$")
+    file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/cmake/DualStackNet26" TYPE FILE FILES "C:/McMaker Projects/Tools/libs/std_execution/build/CMakeFiles/Export/ab4dabbb87eba60f13e38a6fc179d5b7/DualStackNet26Targets-relwithdebinfo.cmake")
+  endif()
   if(CMAKE_INSTALL_CONFIG_NAME MATCHES "^([Rr][Ee][Ll][Ee][Aa][Ss][Ee])$")
-    file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/cmake/DualStackNet26" TYPE FILE FILES "/mnt/c/McMaker Projects/Tools/libs/std_execution/build/CMakeFiles/Export/ab4dabbb87eba60f13e38a6fc179d5b7/DualStackNet26Targets-release.cmake")
+    file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/cmake/DualStackNet26" TYPE FILE FILES "C:/McMaker Projects/Tools/libs/std_execution/build/CMakeFiles/Export/ab4dabbb87eba60f13e38a6fc179d5b7/DualStackNet26Targets-release.cmake")
   endif()
 endif()
 
 if(CMAKE_INSTALL_COMPONENT STREQUAL "Unspecified" OR NOT CMAKE_INSTALL_COMPONENT)
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/cmake/DualStackNet26" TYPE FILE FILES "/mnt/c/McMaker Projects/Tools/libs/std_execution/build/DualStackNet26Config.cmake")
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/cmake/DualStackNet26" TYPE FILE FILES "C:/McMaker Projects/Tools/libs/std_execution/build/DualStackNet26Config.cmake")
 endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for the subdirectory.
-  include("/mnt/c/McMaker Projects/Tools/libs/std_execution/build/tests/cmake_install.cmake")
+  include("C:/McMaker Projects/Tools/libs/std_execution/build/tests/cmake_install.cmake")
 endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
 if(CMAKE_INSTALL_LOCAL_ONLY)
-  file(WRITE "/mnt/c/McMaker Projects/Tools/libs/std_execution/build/install_local_manifest.txt"
+  file(WRITE "C:/McMaker Projects/Tools/libs/std_execution/build/install_local_manifest.txt"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")
 endif()
 if(CMAKE_INSTALL_COMPONENT)
@@ -101,6 +140,6 @@ else()
 endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
-  file(WRITE "/mnt/c/McMaker Projects/Tools/libs/std_execution/build/${CMAKE_INSTALL_MANIFEST}"
+  file(WRITE "C:/McMaker Projects/Tools/libs/std_execution/build/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")
 endif()

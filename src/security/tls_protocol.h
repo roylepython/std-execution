@@ -12,6 +12,7 @@
  */
 
 #include "security.h"
+#include "../reflect/reflection.h"
 #include <string>
 #include <vector>
 #include <memory>
@@ -238,12 +239,12 @@ struct TLSConfiguration {
     
     template<typename Reflection>
     constexpr void reflect(Reflection& r) {
-        r.reflect(min_version, "min_version");
-        r.reflect(max_version, "max_version");
-        r.reflect(preferred_suites, "preferred_suites");
-        r.reflect(require_pqc, "require_pqc");
-        r.reflect(enable_icewall, "enable_icewall");
-        r.reflect(session_timeout, "session_timeout");
+        DUALSTACK_REFLECT_MEMBER(min_version);
+        DUALSTACK_REFLECT_MEMBER(max_version);
+        DUALSTACK_REFLECT_MEMBER(preferred_suites);
+        DUALSTACK_REFLECT_MEMBER(require_pqc);
+        DUALSTACK_REFLECT_MEMBER(enable_icewall);
+        DUALSTACK_REFLECT_MEMBER(session_timeout);
     }
 };
 

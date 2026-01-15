@@ -1,12 +1,13 @@
 #pragma once
 
-// Copyright © 2025 D Hargreaves | Roylepython AKA The Medusa Initiative 2025 - All Rights Reserved
+// Copyright  2025 D Hargreaves | Roylepython AKA The Medusa Initiative 2025 - All Rights Reserved
 
 #include "../core/socket.h"
 #include "../core/acceptor.h"
 #include <execution>
 #include <functional>
 #include <chrono>
+#include <thread>
 
 namespace dualstack::async {
 
@@ -35,7 +36,16 @@ public:
     auto stop() -> void;
     
     // Get scheduler for this context
-    auto get_scheduler() -> std::execution::scheduler auto;
+    // Returns a scheduler that can be used with std::execution algorithms
+    // In C++26, we use the inline scheduler by default
+#if __cpp_lib_execution >= 202300L
+    auto get_scheduler() {
+        return std::execution::get_inline_scheduler();
+    }
+#else
+    // Fallback for compilers without std::execution
+    void* get_scheduler() { return nullptr; }
+#endif
 };
 
 // Convenience functions for async operations
@@ -83,8 +93,11 @@ struct network_traits {
 };
 
 // Stop token support for cancellation
-using stop_token = std::execution::stop_token;
-using stop_source = std::execution::stop_source;
+// Note: std::execution::stop_token doesn't exist in C++26 yet
+// Using std::stop_token from <stop_token> instead
+#include <stop_token>
+using stop_token = std::stop_token;
+using stop_source = std::stop_source;
 
 // Environment queries for networking
 template<typename Env>

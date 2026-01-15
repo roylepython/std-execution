@@ -1,3 +1,5 @@
+// Include format header fix BEFORE any standard headers
+#include "../../include/dualstack_net26/fix_format_header.h"
 #include "adr_rdr.h"
 #include <fstream>
 #include <sstream>
@@ -38,7 +40,7 @@ auto ADRReader::read_signature_string(const std::string& signature_str) -> ReadR
     
     try {
         // Parse the signature string
-        VisualSignature sig = visualizer_->from_string(signature_str);
+        SignatureVisualizer::VisualSignature sig = visualizer_->from_string(signature_str);
         return extract_information(sig);
     } catch (const std::exception& e) {
         result.success = false;
@@ -52,7 +54,7 @@ auto ADRReader::read_signature_image(const std::vector<std::byte>& image_data) -
     
     try {
         // Parse image data
-        VisualSignature sig = extract_visual_data_from_image(image_data);
+        SignatureVisualizer::VisualSignature sig = extract_visual_data_from_image(image_data);
         return extract_information(sig);
     } catch (const std::exception& e) {
         result.success = false;
@@ -61,8 +63,8 @@ auto ADRReader::read_signature_image(const std::vector<std::byte>& image_data) -
     }
 }
 
-auto ADRReader::authenticate_signature(const VisualSignature& sig,
-                                     const VisualSignature& reference) -> bool {
+auto ADRReader::authenticate_signature(const SignatureVisualizer::VisualSignature& sig,
+                                     const SignatureVisualizer::VisualSignature& reference) -> bool {
     try {
         // Calculate similarity score
         float similarity = calculate_similarity(sig, reference);
@@ -74,7 +76,7 @@ auto ADRReader::authenticate_signature(const VisualSignature& sig,
     }
 }
 
-auto ADRReader::extract_information(const VisualSignature& sig) -> ReadResult {
+auto ADRReader::extract_information(const SignatureVisualizer::VisualSignature& sig) -> ReadResult {
     ReadResult result{};
     result.success = true;
     result.signature = sig;
@@ -88,10 +90,10 @@ auto ADRReader::extract_information(const VisualSignature& sig) -> ReadResult {
         }
         
         // Decrypt embedded data if requested
-        if (secure_reader_) {
-            result.decrypted_data = secure_reader_.decrypt_embedded_data(sig.encrypted_metadata);
-            result.biometric_info = secure_reader_.extract_biometric(sig);
-            result.domain_info = secure_reader_.extract_domain_verification(sig);
+        if (secure_reader_.has_value()) {
+            result.decrypted_data = secure_reader_.value().decrypt_embedded_data(sig.encrypted_metadata);
+            result.biometric_info = secure_reader_.value().extract_biometric(sig);
+            result.domain_info = secure_reader_.value().extract_domain_verification(sig);
         }
         
         // Perform authentication check
@@ -108,14 +110,14 @@ auto ADRReader::extract_information(const VisualSignature& sig) -> ReadResult {
     return result;
 }
 
-auto ADRReader::verify_signature_integrity(const VisualSignature& sig) -> bool {
-    if (secure_reader_) {
-        return secure_reader_.verify_integrity(sig);
+auto ADRReader::verify_signature_integrity(const SignatureVisualizer::VisualSignature& sig) -> bool {
+    if (secure_reader_.has_value()) {
+        return secure_reader_.value().verify_integrity(sig);
     }
     return false;
 }
 
-auto ADRReader::get_security_analysis(const VisualSignature& sig) -> std::map<std::string, float> {
+auto ADRReader::get_security_analysis(const SignatureVisualizer::VisualSignature& sig) -> std::map<std::string, float> {
     std::map<std::string, float> metrics;
     
     // Calculate various security metrics
@@ -128,46 +130,52 @@ auto ADRReader::get_security_analysis(const VisualSignature& sig) -> std::map<st
     return metrics;
 }
 
-auto ADRReader::export_signature_data(const VisualSignature& sig, const std::string& format) -> std::vector<std::byte> {
+auto ADRReader::export_signature_data(const SignatureVisualizer::VisualSignature& sig, const std::string& format) -> std::vector<std::byte> {
     std::vector<std::byte> result;
     
     if (format == "svg") {
         std::string svg = visualizer_->to_svg(sig);
-        result.assign(svg.begin(), svg.end());
+        result.reserve(svg.size());
+        for (char c : svg) {
+            result.push_back(static_cast<std::byte>(static_cast<unsigned char>(c)));
+        }
     } else if (format == "string") {
         std::string str = visualizer_->to_string(sig);
-        result.assign(str.begin(), str.end());
+        result.reserve(str.size());
+        for (char c : str) {
+            result.push_back(static_cast<std::byte>(static_cast<unsigned char>(c)));
+        }
     }
     // Add more formats as needed
     
     return result;
 }
 
-auto ADRReader::validate_signature_format(const VisualSignature& sig) -> bool {
+auto ADRReader::validate_signature_format(const SignatureVisualizer::VisualSignature& sig) -> bool {
     // Basic validation checks
     return !sig.points.empty() && !sig.colors.empty() && sig.visual_checksum != 0;
 }
 
-auto ADRReader::compare_signatures(const VisualSignature& sig1, const VisualSignature& sig2) -> float {
+auto ADRReader::compare_signatures(const SignatureVisualizer::VisualSignature& sig1, const SignatureVisualizer::VisualSignature& sig2) -> float {
     return calculate_similarity(sig1, sig2);
 }
 
 // Private helper methods
-auto ADRReader::parse_svg_file(const std::string& filepath) -> VisualSignature {
+auto ADRReader::parse_svg_file(const std::string& filepath [[maybe_unused]]) -> SignatureVisualizer::VisualSignature {
     // Placeholder implementation - in reality this would parse SVG content
-    VisualSignature sig;
+    SignatureVisualizer::VisualSignature sig;
     // Parse SVG and extract visual signature data
     return sig;
 }
 
-auto ADRReader::parse_png_data(const std::vector<std::byte>& data) -> VisualSignature {
+auto ADRReader::parse_png_data(const std::vector<std::byte>& data [[maybe_unused]]) -> SignatureVisualizer::VisualSignature {
     // Placeholder implementation - in reality this would parse PNG content
-    VisualSignature sig;
+    SignatureVisualizer::VisualSignature sig;
     // Parse PNG and extract visual signature data
     return sig;
 }
 
-auto ADRReader::extract_visual_data_from_image(const std::vector<std::byte>& image_data) -> VisualSignature {
+auto ADRReader::extract_visual_data_from_image(const std::vector<std::byte>& image_data) -> SignatureVisualizer::VisualSignature {
     // Placeholder implementation - detect image format and parse accordingly
     if (image_data.size() > 8 && 
         static_cast<unsigned char>(image_data[0]) == 0x89 &&
@@ -175,10 +183,10 @@ auto ADRReader::extract_visual_data_from_image(const std::vector<std::byte>& ima
         return parse_png_data(image_data);
     }
     // Default to creating empty signature
-    return VisualSignature{};
+    return SignatureVisualizer::VisualSignature{};
 }
 
-auto ADRReader::calculate_similarity(const VisualSignature& sig1, const VisualSignature& sig2) -> float {
+auto ADRReader::calculate_similarity(const SignatureVisualizer::VisualSignature& sig1, const SignatureVisualizer::VisualSignature& sig2) -> float {
     if (sig1.points.size() != sig2.points.size()) {
         return 0.0f;
     }
@@ -245,8 +253,9 @@ auto ADRCommandLineInterface::export_results(const ADRReader::ReadResult& result
             return false;
         }
         
-        // Export as SVG
-        std::string svg = result.signature.visualizer->to_svg(result.signature);
+        // Export as SVG - create temporary visualizer since this is a static method
+        SignatureVisualizer temp_visualizer;
+        std::string svg = temp_visualizer.to_svg(result.signature);
         file.write(svg.data(), svg.size());
         file.close();
         

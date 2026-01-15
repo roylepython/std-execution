@@ -1,6 +1,6 @@
 /**
  * DualStackNet26 - Amphisbaena =
- * Copyright © 2025 D Hargreaves | Roylepython AKA The Medusa Initiative 2025 - All Rights Reserved
+ * Copyright ï¿½ 2025 D Hargreaves | Roylepython AKA The Medusa Initiative 2025 - All Rights Reserved
  * 
  * Yorkshire Champion Standards - Improving AI Safety and the Web
  * British Standards improving AI Safety and the Web
@@ -9,8 +9,13 @@
  * then the first woodpecker that came along would destroy civilization.
  */
 
+// Include format header fix BEFORE any standard headers
+#include "../../include/dualstack_net26/fix_format_header.h"
 #include "socket.h"
+#include "ip_address.h"
 #include <cstring>
+
+using ::make_unexpected_value;
 #include <stdexcept>
 
 #ifdef _WIN32
@@ -18,6 +23,7 @@
 #include <ws2tcpip.h>
 #pragma comment(lib, "ws2_32.lib")
 #else
+#include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
@@ -87,7 +93,21 @@ auto sockaddr_to_ip(const sockaddr_storage& addr) -> std::expected<IPAddress, er
 }
 
 // Socket implementation
-Socket::Socket() : handle_(0), is_open_(false) {
+Socket::Socket() : handle_(0), is_open_(false), owns_handle_(false) {
+#ifdef _WIN32
+    static bool initialized = false;
+    if (!initialized) {
+        WSADATA wsa_data;
+        if (WSAStartup(MAKEWORD(2, 2), &wsa_data) != 0) {
+            throw std::runtime_error("Failed to initialize Winsock");
+        }
+        initialized = true;
+    }
+#endif
+}
+
+Socket::Socket(native_socket_handle handle, bool owns) 
+    : handle_(handle), is_open_(handle != 0 && handle != static_cast<native_socket_handle>(-1)), owns_handle_(owns) {
 #ifdef _WIN32
     static bool initialized = false;
     if (!initialized) {
@@ -107,20 +127,23 @@ Socket::~Socket() {
 }
 
 Socket::Socket(Socket&& other) noexcept 
-    : handle_(other.handle_), is_open_(other.is_open_) {
+    : handle_(other.handle_), is_open_(other.is_open_), owns_handle_(other.owns_handle_) {
     other.handle_ = 0;
     other.is_open_ = false;
+    other.owns_handle_ = false;
 }
 
 auto Socket::operator=(Socket&& other) noexcept -> Socket& {
     if (this != &other) {
-        if (is_open_) {
+        if (is_open_ && owns_handle_) {
             disconnect();
         }
         handle_ = other.handle_;
         is_open_ = other.is_open_;
+        owns_handle_ = other.owns_handle_;
         other.handle_ = 0;
         other.is_open_ = false;
+        other.owns_handle_ = false;
     }
     return *this;
 }
@@ -133,8 +156,9 @@ auto Socket::connect(const IPAddress& addr, port_t port) -> error_code {
             return error_code::connection_failed;
         }
         is_open_ = true;
+        owns_handle_ = true;
         
-        // Enable dual-stack support
+        // Enable dual-stack support (IPv6 socket can accept IPv4 connections)
         int ipv6_only = 0;
         setsockopt(static_cast<int>(handle_), IPPROTO_IPV6, IPV6_V6ONLY, 
                    reinterpret_cast<const char*>(&ipv6_only), sizeof(ipv6_only));
@@ -155,7 +179,7 @@ auto Socket::connect(const IPAddress& addr, port_t port) -> error_code {
 }
 
 auto Socket::disconnect() -> void {
-    if (is_open_) {
+    if (is_open_ && owns_handle_) {
 #ifdef _WIN32
         closesocket(static_cast<SOCKET>(handle_));
 #else
@@ -188,7 +212,7 @@ auto Socket::receive(buffer_t buffer) -> std::size_t {
     }
     
     auto result = ::recv(static_cast<int>(handle_), 
-                        reinterpret_cast<char*>(buffer.data()), 
+                        const_cast<char*>(reinterpret_cast<const char*>(buffer.data())), 
                         static_cast<int>(buffer.size()), 0);
     
     if (result == -1) {

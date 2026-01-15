@@ -1,35 +1,61 @@
 #pragma once
 
-// Copyright © 2025 D Hargreaves | Roylepython AKA The Medusa Initiative 2025 - All Rights Reserved
+// Copyright Â© 2025 D Hargreaves | Roylepython AKA The Medusa Initiative 2025 - All Rights Reserved
 
 #include "ip_address.h"
-#include <span>
 #include <memory>
 #include <cstdint>
+#include <cstddef>
+#include <vector>
 
-// Forward declarations for std::execution types
-namespace std::execution {
-    struct sender_tag {};
-    template<typename... Ts>
-    struct completion_signatures {};
+#ifdef _WIN32
+#include <winsock2.h>
+#include <ws2tcpip.h>
+#pragma comment(lib, "ws2_32.lib")
+#else
+#include <sys/socket.h>
+#include <netinet/in.h>
+#endif
+
+// Simple span-like wrapper for buffer operations
+template<typename T>
+class span_wrapper {
+private:
+    const T* data_;
+    std::size_t size_;
     
-    struct set_value_t {};
-    struct set_error_t {};
-    struct set_stopped_t {};
+public:
+    span_wrapper(const T* data, std::size_t size) : data_(data), size_(size) {}
+    span_wrapper(const std::vector<std::remove_const_t<T>>& vec) : data_(vec.data()), size_(vec.size()) {}
     
-    template<typename T>
-    struct just_sender;
-}
+    const T* data() const { return data_; }
+    std::size_t size() const { return size_; }
+    bool empty() const { return size_ == 0; }
+};
 
 namespace dualstack {
 
 // Forward declarations
 class Socket;
 class Acceptor;
+class IPAddress;
 
 // Type aliases for cleaner API
 using port_t = std::uint16_t;
-using buffer_t = std::span<std::byte>;
+using buffer_t = span_wrapper<const std::byte>;
+
+// Helper function declarations
+#ifdef _WIN32
+#include <winsock2.h>
+#include <ws2tcpip.h>
+using socklen_t = int;
+#else
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#endif
+auto ip_to_sockaddr(const IPAddress& ip, port_t port, sockaddr_storage& addr, socklen_t& addr_len) -> void;
+auto sockaddr_to_ip(const sockaddr_storage& addr, socklen_t addr_len, IPAddress& ip, port_t& port) -> void;
 
 // Native socket handle (platform-specific)
 #ifdef _WIN32
@@ -55,10 +81,12 @@ class Socket {
 private:
     native_socket_handle handle_;
     bool is_open_;
+    bool owns_handle_;  // Track if we own the handle (for move semantics)
     
 public:
     // Constructors
     Socket();
+    explicit Socket(native_socket_handle handle, bool owns = true);  // Construct from native handle
     ~Socket();
     
     // Move semantics
@@ -76,19 +104,6 @@ public:
     // Data transfer
     [[nodiscard]] auto send(buffer_t data) -> std::size_t;
     [[nodiscard]] auto receive(buffer_t buffer) -> std::size_t;
-    
-    // Asynchronous operations using std::execution (C++26)
-#if __cpp_lib_execution >= 202300L
-    // Sender-based async operations
-    auto async_connect(const IPAddress& addr, port_t port) 
-        -> std::execution::sender auto;
-        
-    auto async_send(buffer_t data)
-        -> std::execution::sender auto;
-        
-    auto async_receive(buffer_t buffer)
-        -> std::execution::sender auto;
-#endif
     
     // Utility methods
     bool is_open() const { return is_open_; }

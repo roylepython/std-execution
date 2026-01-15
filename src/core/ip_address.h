@@ -1,29 +1,57 @@
 #pragma once
 
-// Copyright © 2025 D Hargreaves | Roylepython AKA The Medusa Initiative 2025 - All Rights Reserved
+// Copyright Â© 2025 D Hargreaves | Roylepython AKA The Medusa Initiative 2025 - All Rights Reserved
 
-#include <variant>
+// Include format header fix BEFORE any standard headers
+#include "../../include/dualstack_net26/fix_format_header.h"
+
+#include <cstdint>
 #include <string>
 #include <string_view>
-#include <expected>
-#include <cstdint>
-
-#ifdef __cpp_lib_expected
-#include <expected>
-#else
-// Fallback for older compilers
+#include <variant>
 #include <optional>
-namespace std {
-    template<typename T, typename E>
-    using expected = std::optional<T>;
+#include <expected>
+#include <functional>
+
+// Use standard library expected for C++23+
+namespace dualstack_expected = std;
+
+// Helper function to create unexpected values
+template<typename E>
+inline auto make_unexpected_value(E&& err) -> std::unexpected<std::decay_t<E>> {
+    return std::unexpected<std::decay_t<E>>(std::forward<E>(err));
 }
-#endif
 
 namespace dualstack {
 
-// Forward declarations
-struct ipv4_address;
-struct ipv6_address;
+// IPv4 address structure (defined before IPAddress to avoid incomplete type issues)
+struct ipv4_address {
+    std::uint32_t address;
+    
+    ipv4_address() : address(0) {}
+    explicit ipv4_address(std::uint32_t addr) : address(addr) {}
+    
+    auto to_string() const -> std::string;
+    static auto from_string(std::string_view str) -> dualstack_expected::expected<ipv4_address, int>;
+    
+    bool operator==(const ipv4_address& other) const = default;
+    auto operator<=>(const ipv4_address& other) const = default;
+};
+
+// IPv6 address structure (defined before IPAddress to avoid incomplete type issues)
+struct ipv6_address {
+    std::uint64_t high;
+    std::uint64_t low;
+    
+    ipv6_address() : high(0), low(0) {}
+    ipv6_address(std::uint64_t h, std::uint64_t l) : high(h), low(l) {}
+    
+    auto to_string() const -> std::string;
+    static auto from_string(std::string_view str) -> dualstack_expected::expected<ipv6_address, int>;
+    
+    bool operator==(const ipv6_address& other) const = default;
+    auto operator<=>(const ipv6_address& other) const = default;
+};
 
 class IPAddress {
 private:
@@ -36,12 +64,16 @@ public:
     IPAddress(ipv6_address ipv6);
     
     // Factory methods
-    static auto from_string(std::string_view str) -> std::expected<IPAddress, int>;
+    static auto from_string(std::string_view str) -> dualstack_expected::expected<IPAddress, int>;
     auto to_string() const -> std::string;
     
     // Accessors
-    bool is_ipv4() const { return std::holds_alternative<ipv4_address>(addr_); }
-    bool is_ipv6() const { return std::holds_alternative<ipv6_address>(addr_); }
+    bool is_ipv4() const { 
+        return std::holds_alternative<ipv4_address>(addr_); 
+    }
+    bool is_ipv6() const { 
+        return std::holds_alternative<ipv6_address>(addr_); 
+    }
     
     auto get_ipv4() const -> const ipv4_address&;
     auto get_ipv6() const -> const ipv6_address&;
@@ -54,33 +86,6 @@ public:
     struct Hash {
         auto operator()(const IPAddress& ip) const -> std::size_t;
     };
-};
-
-// IPv4 address structure
-struct ipv4_address {
-    std::uint32_t address;
-    
-    ipv4_address() : address(0) {}
-    explicit ipv4_address(std::uint32_t addr) : address(addr) {}
-    
-    auto to_string() const -> std::string;
-    static auto from_string(std::string_view str) -> std::expected<ipv4_address, int>;
-    
-    bool operator==(const ipv4_address& other) const = default;
-};
-
-// IPv6 address structure
-struct ipv6_address {
-    std::uint64_t high;
-    std::uint64_t low;
-    
-    ipv6_address() : high(0), low(0) {}
-    ipv6_address(std::uint64_t h, std::uint64_t l) : high(h), low(l) {}
-    
-    auto to_string() const -> std::string;
-    static auto from_string(std::string_view str) -> std::expected<ipv6_address, int>;
-    
-    bool operator==(const ipv6_address& other) const = default;
 };
 
 // Compile-time reflection support (C++26)

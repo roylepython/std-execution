@@ -47,7 +47,7 @@ set(DualStackNet26_VERSION "1.0.0")
 include(CMakeFindDependencyMacro)
 
 # Find dependencies based on platform
-if()
+if(1)
     # Windows dependencies
     set(DualStackNet26_PLATFORM_LIBS ws2_32)
 else()

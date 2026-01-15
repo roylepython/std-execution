@@ -1,1 +1,0 @@
-/usr/bin/c++  -std=c++2c -fconcepts-ts -Wall -Wextra -Wpedantic -O3 -DNDEBUG -O3 -DNDEBUG -Wl,--dependency-file=CMakeFiles/compilation_test.dir/link.d CMakeFiles/compilation_test.dir/src/main.cpp.o -o compilation_test  libdualstack_net26.a -lpthread

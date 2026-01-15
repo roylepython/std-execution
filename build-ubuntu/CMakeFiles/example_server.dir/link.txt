@@ -1,0 +1,1 @@
+/usr/bin/g++-14  -std=c++2c -Wall -Wextra -Wpedantic -O3 -DNDEBUG -O3 -DNDEBUG -Wl,--dependency-file=CMakeFiles/example_server.dir/link.d CMakeFiles/example_server.dir/examples/server.cpp.o -o example_server  -Wl,-rpath,"/mnt/c/McMaker Projects/Tools/libs/std_execution/build-ubuntu" libdualstack_net26.so.1.0.0

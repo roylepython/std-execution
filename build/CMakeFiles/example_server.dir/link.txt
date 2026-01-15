@@ -1,1 +1,0 @@
-/usr/bin/c++  -std=c++2c -fconcepts-ts -Wall -Wextra -Wpedantic -O3 -DNDEBUG -O3 -DNDEBUG -Wl,--dependency-file=CMakeFiles/example_server.dir/link.d CMakeFiles/example_server.dir/examples/server.cpp.o -o example_server  libdualstack_net26.a -lpthread
