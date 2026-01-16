@@ -6,6 +6,9 @@
 #include <chrono>
 #include <sstream>
 #include <iomanip>
+#include <set>
+#include <string>
+#include <vector>
 
 // Include PsiForceDB security components
 #include "../../../Projects/LamiaFabrica/Back-Office/PsiForceDB_1.0.0/inc/lfssl/kyber1024.hpp"
@@ -13,6 +16,19 @@
 #include "../../../Projects/LamiaFabrica/Back-Office/PsiForceDB_1.0.0/include/openssl/aes.h"
 
 namespace dualstack::security::tls {
+
+// Function-local lazy initialization for known bad IPs - avoids static initialization and -Wfree-nonheap-object warnings
+namespace {
+    const std::set<std::string>* get_known_bad_ips() {
+        static const std::set<std::string>* ips = nullptr;
+        if (!ips) {
+            ips = new std::set<std::string>{
+                "192.168.1.100", "10.0.0.50", "172.16.0.1"
+            };
+        }
+        return ips;
+    }
+}
 
 // Kyber Key Exchange Implementation
 auto pqc::KyberKeyExchange::generate_keypair() -> std::pair<std::vector<std::byte>, std::vector<std::byte>> {
@@ -250,11 +266,9 @@ auto IcewallProtection::monitor_connection(const std::string& client_ip) -> Thre
     // For now, simulate basic threat detection
     
     // Check if IP is in known bad list (simulated)
-    static const std::set<std::string> known_bad_ips = {
-        "192.168.1.100", "10.0.0.50", "172.16.0.1"
-    };
-    
-    if (known_bad_ips.find(client_ip) != known_bad_ips.end()) {
+    // Uses function-local lazy-initialized heap-allocated set that is never destroyed
+    const std::set<std::string>* known_bad_ips_list = get_known_bad_ips();
+    if (known_bad_ips_list->find(client_ip) != known_bad_ips_list->end()) {
         return ThreatLevel::HIGH;
     }
     
